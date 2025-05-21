@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemistry Bingo: Struktur Atom & Ikatan Kimia</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --free-space-color: #f1c40f;
+            --correct-color: #2ecc71;
+            --wrong-color: #e74c3c;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+        
+        .setup-screen, .game-screen {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .game-screen {
+            display: none;
+        }
+        
+        .setup-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        label {
+            font-weight: bold;
+        }
+        
+        input, button {
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            border: none;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-start {
+            margin-top: 10px;
+            padding: 12px;
+            font-size: 1.1rem;
+        }
+        
+        .players-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .player-section {
+            flex: 1;
+            min-width: 350px;
+            max-width: 500px;
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .player-name {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .player-score {
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .bingo-board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .bingo-cell {
+            width: 100%;
+            aspect-ratio: 1;
+            background-color: var(--light-color);
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 5px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            height: 60px;
+            overflow: hidden;
+        }
+        
+        .bingo-cell:hover {
+            background-color: #ddd;
+        }
+        
+        .free-space {
+            background-color: var(--free-space-color);
+            cursor: default;
+        }
+        
+        .correct {
+            background-color: var(--correct-color);
+            color: white;
+        }
+        
+        .wrong {
+            background-color: var(--wrong-color);
+            color: white;
+        }
+        
+        .game-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .question-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .current-question {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: var(--light-color);
+            border-radius: 4px;
+            min-height: 100px;
+        }
+        
+        .btn-question {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn-question:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn-pass {
+            background-color: var(--primary-color);
+        }
+        
+        .btn-pass:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-reset {
+            background-color: var(--danger-color);
+        }
+        
+        .btn-reset:hover {
+            background-color: #c0392b;
+        }
+        
+        .current-player {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .turn-indicator {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .bingo-message {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 30px;
+            border-radius: 8px;
+            font-size: 2rem;
+            font-weight: bold;
+            animation: pop 0.5s;
+            z-index: 100;
+        }
+        
+        @keyframes pop {
+            0% { transform: translate(-50%, -50%) scale(0.5); }
+            80% { transform: translate(-50%, -50%) scale(1.2); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        .dynamic-players {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .player-input {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-add-player, .btn-remove-player {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .btn-add-player {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn-remove-player {
+            background-color: var(--danger-color);
+        }
+        
+        @media (max-width: 768px) {
+            .player-section {
+                min-width: 100%;
+            }
+            
+            .bingo-cell {
+                font-size: 0.7rem;
+                height: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Chemistry Bingo</h1>
+            <p>Struktur Atom & Ikatan Kimia</p>
+        </header>
+
+        <div class="setup-screen">
+            <h2>Setup Permainan</h2>
+            <form class="setup-form" id="setup-form">
+                <div class="form-group">
+                    <label for="num-players">Jumlah Pemain:</label>
+                    <input type="number" id="num-players" min="2" max="4" value="2" required>
+                </div>
+                
+                <div class="dynamic-players" id="dynamic-players">
+                    <div class="player-input">
+                        <input type="text" placeholder="Nama Pemain 1" value="Pemain 1" required>
+                        <button type="button" class="btn-remove-player" disabled>-</button>
+                    </div>
+                    <div class="player-input">
+                        <input type="text" placeholder="Nama Pemain 2" value="Pemain 2" required>
+                        <button type="button" class="btn-remove-player" disabled>-</button>
+                    </div>
+                </div>
+                
+                <button type="button" class="btn-add-player" id="add-player">+</button>
+                
+                <button type="submit" class="btn-start">Mulai Permainan</button>
+            </form>
+        </div>
+
+        <div class="game-screen">
+            <div class="turn-indicator" id="turn-indicator">
+                Giliran: <span id="current-player-name"></span>
+            </div>
+            
+            <div class="question-section">
+                <h2>Pertanyaan:</h2>
+                <div class="current-question" id="current-question">
+                    Klik tombol "Pertanyaan Berikutnya" untuk memulai
+                </div>
+                <div class="game-controls">
+                    <button class="btn-question" id="next-question">Pertanyaan Berikutnya</button>
+                    <button class="btn-pass" id="pass-question">Lempar ke Pemain Berikutnya</button>
+                    <button class="btn-reset" id="reset-game">Reset Permainan</button>
+                </div>
+            </div>
+            
+            <div class="players-container" id="players-container">
+                <!-- Player sections will be generated here -->
+            </div>
+        </div>
+        
+        <div class="bingo-message" id="bingo-message">
+            🎉 BINGO! Kamu menang!
+        </div>
+    </div>
+
+    <script>
+        // Data soal dan jawaban
+        const questionBank = [
+            {
+                question: "Partikel subatomik yang bermuatan negatif disebut?",
+                answer: "Elektron"
+            },
+            {
+                question: "Partikel subatomik yang bermuatan positif disebut?",
+                answer: "Proton"
+            },
+            {
+                question: "Partikel subatomik yang tidak bermuatan disebut?",
+                answer: "Neutron"
+            },
+            {
+                question: "Siapa yang menemukan neutron?",
+                answer: "James Chadwick"
+            },
+            {
+                question: "Model atom yang menyatakan elektron mengorbit dalam tingkat energi tertentu disebut model?",
+                answer: "Bohr"
+            },
+            {
+                question: "Ikatan yang terjadi karena adanya gaya tarik menarik antara ion positif dan ion negatif disebut?",
+                answer: "Ikatan Ionik"
+            },
+            {
+                question: "Ikatan yang terjadi karena penggunaan bersama pasangan elektron oleh dua atom disebut?",
+                answer: "Ikatan Kovalen"
+            },
+            {
+                question: "Ikatan kovalen yang terbentuk apabila pasangan elektron yang digunakan bersama berasal dari salah satu atom disebut?",
+                answer: "Ikatan Kovalen Koordinasi"
+            },
+            {
+                question: "Ikatan yang terjadi karena adanya gaya tarik menarik antara ion logam dengan elektron valensi yang bebas bergerak disebut?",
+                answer: "Ikatan Logam"
+            },
+            {
+                question: "Jumlah elektron maksimum pada kulit K adalah?",
+                answer: "2"
+            },
+            {
+                question: "Jumlah elektron maksimum pada kulit L adalah?",
+                answer: "8"
+            },
+            {
+                question: "Jumlah elektron maksimum pada kulit M adalah?",
+                answer: "18"
+            },
+            {
+                question: "Elektron yang berada di kulit terluar suatu atom disebut?",
+                answer: "Elektron Valensi"
+            },
+            {
+                question: "Nomor atom menunjukkan jumlah?",
+                answer: "Proton"
+            },
+            {
+                question: "Nomor massa menunjukkan jumlah?",
+                answer: "Proton + Neutron"
+            },
+            {
+                question: "Atom yang memiliki jumlah proton sama tetapi jumlah neutron berbeda disebut?",
+                answer: "Isotop"
+            },
+            {
+                question: "Atom yang memiliki jumlah neutron sama tetapi jumlah proton berbeda disebut?",
+                answer: "Isoton"
+            },
+            {
+                question: "Atom yang memiliki jumlah neutron ditambah proton sama tetapi jumlah proton berbeda disebut?",
+                answer: "Isobar"
+            },
+            {
+                question: "Unsur dengan konfigurasi elektron yang berakhir pada ns2np5 termasuk golongan?",
+                answer: "Halogen"
+            },
+            {
+                question: "Unsur dengan konfigurasi elektron yang berakhir pada ns2np6 termasuk golongan?",
+                answer: "Gas Mulia"
+            },
+            {
+                question: "Unsur dengan konfigurasi elektron yang berakhir pada ns1 termasuk golongan?",
+                answer: "Alkali"
+            },
+            {
+                question: "Unsur dengan konfigurasi elektron yang berakhir pada ns2 termasuk golongan?",
+                answer: "Alkali Tanah"
+            },
+            {
+                question: "Ikatan kovalen yang elektron ikatannya tertarik lebih kuat ke salah satu atom disebut?",
+                answer: "Ikatan Kovalen Polar"
+            },
+            {
+                question: "Ikatan kovalen yang elektron ikatannya tertarik sama kuat ke kedua atom disebut?",
+                answer: "Ikatan Kovalen Non-Polar"
+            },
+            {
+                question: "Gaya tarik-menarik dipol-dipol permanen antar molekul disebut?",
+                answer: "Gaya Van der Waals"
+            },
+            {
+                question: "Ikatan yang terjadi antara atom hidrogen dengan atom elektronegatif seperti O, F, atau N disebut?",
+                answer: "Ikatan Hidrogen"
+            },
+            {
+                question: "Teori yang menyatakan bahwa molekul-molekul mengorbit di sekitar inti atom seperti planet mengorbit matahari disebut model atom?",
+                answer: "Rutherford"
+            },
+            {
+                question: "Bentuk molekul dengan 2 pasangan elektron ikatan dan tidak ada pasangan elektron bebas adalah?",
+                answer: "Linear"
+            },
+            {
+                question: "Bentuk molekul dengan 3 pasangan elektron ikatan dan tidak ada pasangan elektron bebas adalah?",
+                answer: "Trigonal Planar"
+            },
+            {
+                question: "Bentuk molekul dengan 4 pasangan elektron ikatan dan tidak ada pasangan elektron bebas adalah?",
+                answer: "Tetrahedral"
+            },
+            {
+                question: "Teori yang menjelaskan tentang susunan kulit elektron disebut teori?",
+                answer: "Teori Kuantum"
+            },
+            {
+                question: "Atom yang memiliki elektron valensi kurang dari 4 cenderung?",
+                answer: "Melepas Elektron"
+            },
+            {
+                question: "Atom yang memiliki elektron valensi lebih dari 4 cenderung?",
+                answer: "Menerima Elektron"
+            },
+            {
+                question: "Aturan oktet menyatakan bahwa atom cenderung membentuk ikatan agar memiliki elektron valensi sebanyak?",
+                answer: "8"
+            },
+            {
+                question: "Konfigurasi elektron gas mulia yang paling stabil adalah?",
+                answer: "ns2np6"
+            },
+            {
+                question: "Bilangan kuantum yang menentukan bentuk orbital adalah?",
+                answer: "Bilangan Kuantum Azimut"
+            },
+            {
+                question: "Bilangan kuantum yang menentukan orientasi orbital dalam ruang adalah?",
+                answer: "Bilangan Kuantum Magnetik"
+            },
+            {
+                question: "Bilangan kuantum yang menentukan arah putaran elektron adalah?",
+                answer: "Bilangan Kuantum Spin"
+            },
+            {
+                question: "Bilangan kuantum yang menentukan tingkat energi elektron adalah?",
+                answer: "Bilangan Kuantum Utama"
+            },
+            {
+                question: "Bentuk orbital s adalah?",
+                answer: "Bola"
+            },
+            {
+                question: "Bentuk orbital p adalah?",
+                answer: "Balon Terpilin"
+            },
+            {
+                question: "Orbital yang memiliki energi paling rendah adalah?",
+                answer: "1s"
+            },
+            {
+                question: "Aturan yang menyebutkan bahwa elektron cenderung mengisi orbital dengan energi terendah terlebih dahulu disebut?",
+                answer: "Aufbau"
+            },
+            {
+                question: "Gaya yang terjadi antara ion positif dengan elektron pada molekul netral disebut?",
+                answer: "Gaya Ion-Dipol"
+            },
+            {
+                question: "Aturan yang menyatakan bahwa tidak ada dua elektron yang dapat memiliki keempat bilangan kuantum yang sama disebut?",
+                answer: "Larangan Pauli"
+            },
+            {
+                question: "Derajat kebebasan elektron untuk dapat berpindah dari satu atom ke atom lain disebut?",
+                answer: "Delokalisasi Elektron"
+            },
+            {
+                question: "Model atom yang menggambarkan elektron sebagai awan elektron disebut model atom?",
+                answer: "Mekanika Kuantum"
+            },
+            {
+                question: "Ikatan antara molekul yang memiliki muatan positif pada satu ujung dan muatan negatif pada ujung lainnya disebut?",
+                answer: "Ikatan Dipol-Dipol"
+            },
+            {
+                question: "Gaya yang terjadi antara molekul-molekul non-polar karena adanya dipol sesaat disebut?",
+                answer: "Gaya Dispersi London"
+            }
+        ];
+
+        // Jawaban untuk kartu bingo
+        const bingoAnswers = questionBank.map(q => q.answer);
+        
+        // DOM elements
+        const setupScreen = document.querySelector('.setup-screen');
+        const gameScreen = document.querySelector('.game-screen');
+        const setupForm = document.getElementById('setup-form');
+        const numPlayersInput = document.getElementById('num-players');
+        const dynamicPlayers = document.getElementById('dynamic-players');
+        const addPlayerBtn = document.getElementById('add-player');
+        const playersContainer = document.getElementById('players-container');
+        const currentQuestion = document.getElementById('current-question');
+        const nextQuestionBtn = document.getElementById('next-question');
+        const passQuestionBtn = document.getElementById('pass-question');
+        const resetGameBtn = document.getElementById('reset-game');
+        const bingoMessage = document.getElementById('bingo-message');
+        const currentPlayerName = document.getElementById('current-player-name');
+        
+        // Game variables
+        let players = [];
+        let currentPlayerIndex = 0;
+        let usedQuestions = [];
+        let currentQuestionObj = null;
+        let gameActive = false;
+        
+        // Add event listeners
+        setupForm.addEventListener('submit', startGame);
+        numPlayersInput.addEventListener('change', updatePlayerInputs);
+        addPlayerBtn.addEventListener('click', addPlayerInput);
+        nextQuestionBtn.addEventListener('click', showNextQuestion);
+        passQuestionBtn.addEventListener('click', passQuestion);
+        resetGameBtn.addEventListener('click', resetGame);
+        
+        // Initialize player inputs
+        function updatePlayerInputs() {
+            const numPlayers = parseInt(numPlayersInput.value);
+            const currentInputs = dynamicPlayers.querySelectorAll('.player-input');
+            
+            // Ensure minimum of 2 players
+            if (numPlayers < 2) {
+                numPlayersInput.value = 2;
+                return;
+            }
+            
+            // Ensure maximum of 4 players
+            if (numPlayers > 4) {
+                numPlayersInput.value = 4;
+                return;
+            }
+            
+            // Add or remove inputs as needed
+            if (currentInputs.length < numPlayers) {
+                // Add more inputs
+                for (let i = currentInputs.length; i < numPlayers; i++) {
+                    const playerInput = document.createElement('div');
+                    playerInput.className = 'player-input';
+                    playerInput.innerHTML = `
+                        <input type="text" placeholder="Nama Pemain ${i+1}" value="Pemain ${i+1}" required>
+                        <button type="button" class="btn-remove-player">-</button>
+                    `;
+                    dynamicPlayers.appendChild(playerInput);
+                    
+                    // Add remove event listener
+                    playerInput.querySelector('.btn-remove-player').addEventListener('click', function() {
+                        if (dynamicPlayers.children.length > 2) {
+                            dynamicPlayers.removeChild(playerInput);
+                            numPlayersInput.value = dynamicPlayers.children.length;
+                            updateRemoveButtons();
+                        }
+                    });
+                }
+            } else if (currentInputs.length > numPlayers) {
+                // Remove excess inputs
+                for (let i = currentInputs.length - 1; i >= numPlayers; i--) {
+                    dynamicPlayers.removeChild(currentInputs[i]);
+                }
+            }
+            
+            updateRemoveButtons();
+        }
+        
+        // Update remove buttons (disable if only 2 players left)
+        function updateRemoveButtons() {
+            const removeButtons = dynamicPlayers.querySelectorAll('.btn-remove-player');
+            const disableRemove = dynamicPlayers.children.length <= 2;
+            
+            removeButtons.forEach(btn => {
+                btn.disabled = disableRemove;
+            });
+        }
+        
+        // Add a new player input
+        function addPlayerInput() {
+            const numPlayers = dynamicPlayers.children.length;
+            
+            if (numPlayers < 4) {
+                const playerInput = document.createElement('div');
+                playerInput.className = 'player-input';
+                playerInput.innerHTML = `
+                    <input type="text" placeholder="Nama Pemain ${numPlayers+1}" value="Pemain ${numPlayers+1}" required>
+                    <button type="button" class="btn-remove-player">-</button>
+                `;
+                dynamicPlayers.appendChild(playerInput);
+                
+                // Add remove event listener
+                playerInput.querySelector('.btn-remove-player').addEventListener('click', function() {
+                    if (dynamicPlayers.children.length > 2) {
+                        dynamicPlayers.removeChild(playerInput);
+                        numPlayersInput.value = dynamicPlayers.children.length;
+                        updateRemoveButtons();
+                    }
+                });
+                
+                // Update num players input
+                numPlayersInput.value = numPlayers + 1;
+                updateRemoveButtons();
+            }
+            
+            if (numPlayers + 1 >= 4) {
+                addPlayerBtn.disabled = true;
+            }
+        }
+        
+        // Shuffle array function
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+        
+        // Generate a bingo card
+        function generateBingoCard() {
+            const shuffledAnswers = shuffleArray(bingoAnswers);
+            const cardAnswers = shuffledAnswers.slice(0, 24);
+            const bingoCard = [];
+            
+            // Insert free space in the middle (index 12)
+            let currentIndex = 0;
+            for (let i = 0; i < 25; i++) {
+                if (i === 12) {
+                    bingoCard.push("FREE");
+                } else {
+                    bingoCard.push(cardAnswers[currentIndex]);
+                    currentIndex++;
+                }
+            }
+            
+            return bingoCard;
+        }
+        
+        // Start the game
+        function startGame(e) {
+            e.preventDefault();
+            
+            // Get player names
+            const playerInputs = dynamicPlayers.querySelectorAll('input');
+            players = [];
+            
+            playerInputs.forEach((input, index) => {
+                players.push({
+                    name: input.value.trim() || `Pemain ${index + 1}`,
+                    score: 0,
+                    bingoCard: generateBingoCard(),
+                    markedCells: Array(25).fill(false),
+                    hasBingo: false
+                });
+            });
+            
+            // Switch to game screen
+            setupScreen.style.display = 'none';
+            gameScreen.style.display = 'block';
+            
+            // Create player sections
+            createPlayerSections();
+            
+            // Set initial player turn
+            currentPlayerIndex = 0;
+            updateCurrentPlayerDisplay();
+            
+            // Reset game variables
+            usedQuestions = [];
+            gameActive = true;
+            
+            // Show first question
+            showNextQuestion();
+        }
+        
+        // Create player sections
+        function createPlayerSections() {
+            playersContainer.innerHTML = '';
+            
+            players.forEach((player, playerIndex) => {
+                const playerSection = document.createElement('div');
+                playerSection.className = 'player-section';
+                
+                const playerNameDiv = document.createElement('div');
+                playerNameDiv.className = 'player-name';
+                playerNameDiv.textContent = player.name;
+                
+                const playerScoreDiv = document.createElement('div');
+                playerScoreDiv.className = 'player-score';
+                playerScoreDiv.textContent = `Skor: ${player.score}`;
+                playerScoreDiv.id = `player-${playerIndex}-score`;
+                
+                const bingoBoard = document.createElement('div');
+                bingoBoard.className = 'bingo-board';
+                bingoBoard.id = `player-${playerIndex}-board`;
+                
+                // Create bingo cells
+                player.bingoCard.forEach((answer, cellIndex) => {
+                    const cell = document.createElement('div');
+                    cell.className = 'bingo-cell';
+                    cell.textContent = answer;
+                    
+                    if (answer === 'FREE') {
+                        cell.classList.add('free-space');
+                        player.markedCells[cellIndex] = true;
+                    } else {
+                        cell.addEventListener('click', () => handleCellClick(playerIndex, cellIndex));
+                    }
+                    
+                    bingoBoard.appendChild(cell);
+                });
+                
+                playerSection.appendChild(playerNameDiv);
+                playerSection.appendChild(playerScoreDiv);
+                playerSection.appendChild(bingoBoard);
+                
+                playersContainer.appendChild(playerSection);
+            });
+        }
+        
+        // Show the next question
+        function showNextQuestion() {
+            if (!gameActive) return;
+            
+            // If all questions have been used, reset
+            if (usedQuestions.length === questionBank.length) {
+                usedQuestions = [];
+            }
+            
+            // Get a random question that hasn't been used yet
+            let availableQuestions = questionBank.filter((_, index) => !usedQuestions.includes(index));
+            let randomIndex = Math.floor(Math.random() * availableQuestions.length);
+            let questionIndex = questionBank.indexOf(availableQuestions[randomIndex]);
+            
+            currentQuestionObj = questionBank[questionIndex];
+            usedQuestions.push(questionIndex);
+            
+            // Update the question display
+            currentQuestion.textContent = currentQuestionObj.question;
+            
+            // Set active player
+            updateCurrentPlayerDisplay();
+        }
+        
+        // Pass question to next player
+        function passQuestion() {
+            if (!gameActive || !currentQuestionObj) return;
+            
+            // Move to the next player
+            currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+            updateCurrentPlayerDisplay();
+        }
+        
+        // Update the current player display
+        function updateCurrentPlayerDisplay() {
+            currentPlayerName.textContent = players[currentPlayerIndex].name;
+        }
+        
+        // Handle cell click
+        function handleCellClick(playerIndex, cellIndex) {
+            // Only allow clicks from current player when game is active
+            if (!gameActive || playerIndex !== currentPlayerIndex || !currentQuestionObj) return;
+            
+            const player = players[playerIndex];
+            const cellValue = player.bingoCard[cellIndex];
+            
+            // Check if the answer is correct
+            if (cellValue === currentQuestionObj.answer) {
+                // Mark the cell as correct
+                player.markedCells[cellIndex] = true;
+                document.querySelector(`#player-${playerIndex}-board .bingo-cell:nth-child(${cellIndex + 1})`)
+                    .classList.add('correct');
+                
+                // Add points to the player
+                player.score += 1;
+                document.getElementById(`player-${playerIndex}-score`).textContent = `Skor: ${player.score}`;
+                
+                // Check for bingo
+                if (checkForBingo(player.markedCells)) {
+                    handleBingo(playerIndex);
+                }
+                
+                // Reset current question and move to next question
+                currentQuestionObj = null;
+                showNextQuestion();
+            } else {
+                // Show wrong feedback temporarily
+                const cell = document.querySelector(`#player-${playerIndex}-board .bingo-cell:nth-child(${cellIndex + 1})`);
+                cell.classList.add('wrong');
+                
+                // Remove wrong class after a short delay
+                setTimeout(() => {
+                    cell.classList.remove('wrong');
+                }, 500);
+            }
+        }
+        
+        // Check for bingo (5 in a row horizontally, vertically, or diagonally)
+        function checkForBingo(markedCells) {
+            // Check horizontal rows
+            for (let row = 0; row < 5; row++) {
+                let rowComplete = true;
+                for (let col = 0; col < 5; col++) {
+                    if (!markedCells[row * 5 + col]) {
+                        rowComplete = false;
+                        break;
+                    }
+                }
+                if (rowComplete) return true;
+            }
+            
+            // Check vertical columns
+            for (let col = 0; col < 5; col++) {
+                let colComplete = true;
+                for (let row = 0; row < 5; row++) {
+                    if (!markedCells[row * 5 + col]) {
+                        colComplete = false;
+                        break;
+                    }
+                }
+                if (colComplete) return true;
+            }
+            
+            // Check diagonal (top-left to bottom-right)
+            let diag1Complete = true;
+            for (let i = 0; i < 5; i++) {
+                if (!markedCells[i * 5 + i]) {
+                    diag1Complete = false;
+                    break;
+                }
+            }
+            if (diag1Complete) return true;
+            
+            // Check diagonal (top-right to bottom-left)
+            let diag2Complete = true;
+            for (let i = 0; i < 5; i++) {
+                if (!markedCells[i * 5 + (4 - i)]) {
+                    diag2Complete = false;
+                    break;
+                }
+            }
+            if (diag2Complete) return true;
+            
+            return false;
+        }
+        
+        // Handle bingo win
+        function handleBingo(playerIndex) {
+            const player = players[playerIndex];
+            
+            if (!player.hasBingo) {
+                player.hasBingo = true;
+                
+                // Add bonus points for bingo
+                player.score += 5;
+                document.getElementById(`player-${playerIndex}-score`).textContent = `Skor: ${player.score}`;
+                
+                // Show bingo message
+                bingoMessage.style.display = 'block';
+                bingoMessage.textContent = `🎉 BINGO! ${player.name} menang!`;
+                
+                // Hide the message after a few seconds
+                setTimeout(() => {
+                    bingoMessage.style.display = 'none';
+                }, 3000);
+            }
+        }
+        
+        // Reset the game
+        function resetGame() {
+            // Confirm reset
+            if (!confirm('Apakah anda yakin ingin mereset permainan?')) {
+                return;
+            }
+            
+            // Reset player data
+            players.forEach(player => {
+                player.score = 0;
+                player.bingoCard = generateBingoCard();
+                player.markedCells = Array(25).fill(false);
+                player.hasBingo = false;
+            });
+            
+            // Mark free spaces
+            players.forEach(player => {
+                player.markedCells[12] = true;
+            });
+            
+            // Reset game variables
+            currentPlayerIndex = 0;
+            usedQuestions = [];
+            currentQuestionObj = null;
+            
+            // Update UI
+            createPlayerSections();
+            updateCurrentPlayerDisplay();
+            currentQuestion.textContent = 'Klik tombol "Pertanyaan Berikutnya" untuk memulai';
+            gameActive = true;
+        }
+    </script>
+</body>
+</html>
